@@ -1,19 +1,44 @@
-// FONCTION ouvrir la modale d’ajout
-function openAddImageModal(projects, divBack, modalTitle) {
-    const modal = document.querySelector(".modal");
+// FONCTION message d'erreur
+function showAddImageError(message) {
+    let error = document.querySelector(".empty-problem");
+    if (!error) {
+        error = document.createElement("span");
+        error.classList.add("empty-problem");
+        const modalTitle = document.querySelector(".modal .modal-title");
+        modalTitle.appendChild(error);
+    }
+    error.textContent = message;
+}
 
-    // Stocker le titre original pour pouvoir revenir dessus
-    const originalTitle = modalTitle.textContent;
-    modalTitle.textContent = "Ajout photo";
+// FONCTION preview image
+function previewImage(input, divCaseAdd, addImgContainer) {
+    const file = input.files[0];
+    const oldProblem = divCaseAdd.querySelector(".image-problem");
+    if (oldProblem) oldProblem.remove();
+    if (!file) return;
 
-    // Masquer la galerie et le footer existants
-    const modalGallery = modal.querySelector(".modal-gallery");
-    if (modalGallery) modalGallery.style.display = "none";
+    if (file.size > 4 * 1024 * 1024) {
+        const problemImage = document.createElement("span");
+        problemImage.classList.add("image-problem");
+        problemImage.textContent = "Votre image dépasse le poids maximal.";
+        divCaseAdd.appendChild(problemImage);
+        console.error("Image trop lourde.");
+        return;
+    }
 
-    const oldFormFooter = modal.querySelector(".form-footer");
-    if (oldFormFooter) oldFormFooter.style.display = "none";
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        addImgContainer.style.display = "none";
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        img.id = "preview";
+        divCaseAdd.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+}
 
-    // SECTION AJOUT D'IMAGE
+// FONCTION zone image
+function createImageUploadSection() {
     const divCaseAdd = document.createElement("div");
     divCaseAdd.classList.add("case-add");
 
@@ -33,40 +58,25 @@ function openAddImageModal(projects, divBack, modalTitle) {
     const imgRequirement = document.createElement("span");
     imgRequirement.textContent = "jpg, png : 4mo max";
 
+    const addImgContainer = document.createElement("div");
+    addImgContainer.classList.add("addimg-container");
+
     // Ouvrir sélecteur de fichier
     ajouterPhoto.addEventListener("click", () => inputFile.click());
 
     // Aperçu image
     inputFile.addEventListener("change", function () {
-        const file = this.files[0];
-        const oldProblem = divCaseAdd.querySelector(".image-problem");
-        if (oldProblem) oldProblem.remove();
-
-        if (!file) return;
-
-        if (file.size > 4 * 1024 * 1024) {
-            const problemImage = document.createElement("span");
-            problemImage.classList.add("image-problem");
-            problemImage.textContent = "Image trop lourde.";
-            divCaseAdd.appendChild(problemImage);
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            divCaseAdd.innerHTML = "";
-            const img = document.createElement("img");
-            img.src = e.target.result;
-            img.id = "preview";
-            divCaseAdd.appendChild(img);
-        };
-        reader.readAsDataURL(file);
+        previewImage(this, divCaseAdd, addImgContainer);
     });
 
-    divCaseAdd.append(divImgIcon, ajouterPhoto, imgRequirement, inputFile);
-    modal.appendChild(divCaseAdd);
+    divCaseAdd.append(addImgContainer);
+    addImgContainer.append(divImgIcon, ajouterPhoto, imgRequirement, inputFile);
 
-    // FORMULAIRE
+    return { divCaseAdd, inputFile, addImgContainer };
+}
+
+// FONCTION formulaire d'ajout
+function createAddImageForm(projects) {
     const form = document.createElement("form");
     form.classList.add("form-add");
 
@@ -82,10 +92,7 @@ function openAddImageModal(projects, divBack, modalTitle) {
 
     // Catégories uniques
     const categoriesSet = new Map();
-    projects.forEach(project => {
-        categoriesSet.set(project.category.id, project.category.name);
-    });
-
+    projects.forEach(project => categoriesSet.set(project.category.id, project.category.name));
     categoriesSet.forEach((name, id) => {
         const option = document.createElement("option");
         option.value = id;
@@ -95,44 +102,82 @@ function openAddImageModal(projects, divBack, modalTitle) {
 
     const formFooter = document.createElement("div");
     formFooter.classList.add("form-footer");
-
     const buttonValidate = document.createElement("button");
-    buttonValidate.textContent = "Valider";
     buttonValidate.type = "submit";
     buttonValidate.classList.add("button-validate");
-
+    buttonValidate.textContent = "Valider";
     formFooter.appendChild(buttonValidate);
+
     form.append(labelTitle, inputTitle, labelCategory, selectCategory, formFooter);
+
+    return { form, inputTitle, selectCategory };
+}
+
+// FONCTION ajout dans les galeries
+function addProjectToGalleries(newProject) {
+    const divGallery = document.querySelector(".gallery");
+    createProject(newProject, divGallery);
+    applyFilters();
+
+    const divModalGallery = document.querySelector(".modal-gallery");
+    if (!divModalGallery) return;
+
+    const figure = document.createElement("figure");
+    figure.dataset.id = newProject.id;
+    figure.dataset.category = newProject.categoryId;
+
+    const img = document.createElement("img");
+    img.src = newProject.imageUrl;
+    figure.appendChild(img);
+
+    const deleteIcon = document.createElement("div");
+    deleteIcon.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+    deleteIcon.classList.add("delete-icon");
+    deleteIcon.addEventListener("click", () => deleteProject(newProject.id));
+    figure.appendChild(deleteIcon);
+
+    divModalGallery.appendChild(figure);
+}
+
+// Fonction ouvrir modale ajout image
+function openAddImageModal(projects, divBack, modalTitle) {
+    const modal = document.querySelector(".modal");
+    const originalTitle = modalTitle.textContent;
+    modalTitle.textContent = "Ajout photo";
+
+    // Masquer la galerie et le footer existants
+    const modalGallery = modal.querySelector(".modal-gallery");
+    if (modalGallery) modalGallery.style.display = "none";
+    const oldFormFooter = modal.querySelector(".form-footer");
+    if (oldFormFooter) oldFormFooter.style.display = "none";
+
+    // Création des sections
+    const { divCaseAdd, inputFile, addImgContainer } = createImageUploadSection();
+    modal.appendChild(divCaseAdd);
+
+    const { form, inputTitle, selectCategory } = createAddImageForm(projects);
     modal.appendChild(form);
 
-    // BOUTON RETOUR
+    // Bouton retour
     divBack.style.visibility = "visible";
     divBack.style.pointerEvents = "auto";
-
     divBack.addEventListener("click", () => {
         form.style.display = "none";
         divCaseAdd.style.display = "none";
         if (modalGallery) modalGallery.style.display = "grid";
         if (oldFormFooter) oldFormFooter.style.display = "flex";
-
         modalTitle.textContent = originalTitle;
         divBack.style.visibility = "hidden";
         divBack.style.pointerEvents = "none";
     });
 
-    // VALIDATION DU FORMULAIRE
+    // Validation du formulaire
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const oldProblem = modalTitle.querySelector(".empty-problem");
-        if (oldProblem) oldProblem.remove();
-
         const file = inputFile.files[0];
         if (!file || !inputTitle.value) {
-            const problemEmpty = document.createElement("span");
-            problemEmpty.classList.add("empty-problem");
-            problemEmpty.textContent = "Veuillez remplir tous les champs avant de valider.";
-            modalTitle.append(problemEmpty);
+            showAddImageError("Veuillez remplir tous les champs avant de valider.");
             console.error("Formulaire incomplet.");
             return;
         }
@@ -143,51 +188,22 @@ function openAddImageModal(projects, divBack, modalTitle) {
         formData.append("image", file);
 
         const token = localStorage.getItem("token");
-
         const response = await fetch("http://localhost:5678/api/works", {
             method: "POST",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            },
+            headers: { "Authorization": `Bearer ${token}` },
             body: formData
         });
 
         if (response.ok) {
             const newProject = await response.json();
             addProjectToGalleries(newProject);
+            form.reset();
             const preview = divCaseAdd.querySelector("#preview");
             if (preview) preview.remove();
-            form.reset();
+
+            addImgContainer.style.display = "flex";
         } else {
             console.error("Erreur lors de l'ajout du projet");
         }
     });
-
-    // AJOUT DU PROJET
-    function addProjectToGalleries(newProject) {
-        // Galerie principale
-        const divGallery = document.querySelector(".gallery");
-        createProject(newProject, divGallery);
-        applyFilters();
-
-        // Galerie modale
-        const divModalGallery = document.querySelector(".modal-gallery");
-        if (divModalGallery) {
-            const figure = document.createElement("figure");
-            figure.dataset.id = newProject.id;
-            figure.dataset.category = newProject.categoryId;
-
-            const img = document.createElement("img");
-            img.src = newProject.imageUrl;
-            figure.appendChild(img);
-
-            const deleteIcon = document.createElement("div");
-            deleteIcon.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
-            deleteIcon.classList.add("delete-icon");
-            deleteIcon.addEventListener("click", () => deleteProject(newProject.id));
-            figure.appendChild(deleteIcon);
-
-            divModalGallery.appendChild(figure);
-        }
-    }
 }

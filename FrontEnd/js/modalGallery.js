@@ -1,14 +1,53 @@
-// FONCTION ouvrir modale
-async function openModalGallery() {
+// FONCTION fermer la modale
+function closeModal() {
+    const modal = document.querySelector(".modal");
+    const overlay = document.querySelector(".overlay");
+
+    if (modal) modal.remove();
+    if (overlay) overlay.remove();
+}
+
+// FONCTION galerie dans modale
+async function showGallery(divModal, formFooter) {
+    // Récupération des projets depuis le backend
+    const response = await fetch("http://localhost:5678/api/works");
+    const projects = await response.json();
+
+    // Création galerie dans la modale
+    const divModalGallery = document.createElement("div");
+    divModalGallery.classList.add("modal-gallery");
+
+    projects.forEach(project => {
+        const figure = document.createElement("figure");
+        figure.dataset.id = project.id;
+
+        // Appeler la fonction de création de contenu
+        createProject(project, figure);
+
+        // Supprimer figcaption si nécessaire
+        const fc = figure.querySelector("figcaption");
+        if (fc) fc.remove();
+
+        // Création icône poubelle
+        const deleteIcon = document.createElement("div");
+        deleteIcon.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+        deleteIcon.classList.add("delete-icon");
+        deleteIcon.addEventListener("click", () => deleteProject(project.id));
+
+        figure.appendChild(deleteIcon);
+        divModalGallery.appendChild(figure);
+    });
+
+    divModal.insertBefore(divModalGallery, formFooter);
+}
+
+// FONCTION ouvrir modale galerie
+function openModalGallery() {
     // Supprimer ancienne modale et overlay
     const existingModal = document.querySelector(".modal");
     const existingOverlay = document.querySelector(".overlay");
     if (existingModal) existingModal.remove();
     if (existingOverlay) existingOverlay.remove();
-
-    // Récupération des projets depuis le backend
-    const response = await fetch("http://localhost:5678/api/works");
-    const projects = await response.json();
 
     // Création modale et overlay
     const divModal = document.createElement("div");
@@ -42,33 +81,6 @@ async function openModalGallery() {
     divHeader.append(divTopIcons, modalTitle);
     divModal.appendChild(divHeader);
 
-    // Création galerie de la modale
-    const divModalGallery = document.createElement("div");
-    divModalGallery.classList.add("modal-gallery");
-
-    projects.forEach(project => {
-        const figure = document.createElement("figure");
-        figure.dataset.id = project.id;
-
-        // Appeler la fonction de création de contenu
-        createProject(project, figure);
-
-        // Supprimer figcaption si nécessaire
-        const fc = figure.querySelector("figcaption");
-        if (fc) fc.remove();
-
-        // Création icône poubelle
-        const deleteIcon = document.createElement("div");
-        deleteIcon.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
-        deleteIcon.classList.add("delete-icon");
-        deleteIcon.addEventListener("click", () => deleteProject(project.id));
-
-        figure.appendChild(deleteIcon);
-        divModalGallery.appendChild(figure);
-    });
-
-    divModal.appendChild(divModalGallery);
-
     // Création footer modale
     const formFooter = document.createElement("div");
     formFooter.classList.add("form-footer");
@@ -80,21 +92,16 @@ async function openModalGallery() {
     formFooter.appendChild(addButton);
     divModal.appendChild(formFooter);
 
-    // FONCTION fermer la modale
-    function closeModal() {
-        const modal = document.querySelector(".modal");
-        const overlay = document.querySelector(".overlay");
-
-        if (modal) modal.remove();
-        if (overlay) overlay.remove();
-    }
-
     // Event listeners pour fermer modale
     divOverlay.addEventListener("click", closeModal);
     divClose.addEventListener("click", closeModal);
 
     // Event listener pour formulaire ajout photo
+
     addButton.addEventListener("click", () => openAddImageModal(projects, divBack, modalTitle));
+
+    // galerie affichée
+    showGallery(divModal, formFooter)
 }
 
 // FONCTION supprimer un projet
@@ -110,13 +117,18 @@ async function deleteProject(projectId) {
 
     if (response.ok) {
         // Supprimer figure dans modale
-        const figureInModal = document.querySelector(`.modal-gallery figure[data-id='${projectId}']`);
+        const divModalGallery = document.querySelector(".modal-gallery");
+        const figureInModal = Array.from(divModalGallery.children).find(
+            fig => fig.dataset.id == projectId
+        );
         if (figureInModal) figureInModal.remove();
 
         // Supprimer figure sur la page principale
-        const figureOnPage = document.querySelector(`.project[data-id='${projectId}']`);
+        const divGallery = document.querySelector(".gallery");
+        const figureOnPage = Array.from(divGallery.children).find(
+            fig => fig.dataset.id == projectId
+        );
         if (figureOnPage) figureOnPage.remove();
-
     } else {
         console.error("Erreur lors de la suppression du projet");
     }

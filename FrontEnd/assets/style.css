@@ -551,12 +551,20 @@ footer nav ul li {
 	border-radius: 3px;
 	align-items: center;
 	margin: 36px 0 30px 0;
-	gap: 6px;
 	overflow: hidden;
 }
 
 .case-add span {
 	font-size: 10px;
+}
+
+.addimg-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	overflow: hidden;
 }
 
 .ajouter-photo {
