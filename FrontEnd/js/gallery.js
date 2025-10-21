@@ -10,13 +10,9 @@ async function collectProject() {
 
     divGallery.innerHTML = "";
 
-    const categoriesList = new Map();
-    projects.forEach(project => {
-        createProject(project, divGallery);
-        categoriesList.set(project.category.id, project.category.name);
-    });
+    projects.forEach(project => createProject(project, divGallery));
 
-    createFilterButtons(categoriesList, divCategories);
+    createFilterButtons(divCategories, projects);
     applyFilters();
 }
 
@@ -35,14 +31,21 @@ function createProject(project, divGallery) {
     divGallery.appendChild(figure);
 }
 
-function createFilterButtons(categoriesList, divCategories) {
+function createFilterButtons(divCategories, projects) {
+    divCategories.innerHTML = "";
+
     const buttonAll = document.createElement("button");
     buttonAll.textContent = "Tous";
     buttonAll.dataset.category = "all";
     buttonAll.classList.add("activeButton");
     divCategories.appendChild(buttonAll);
 
-    categoriesList.forEach((name, id) => {
+    const categoriesMap = new Map();
+    projects.forEach(project => {
+        categoriesMap.set(project.category.id, project.category.name);
+    });
+
+    categoriesMap.forEach((name, id) => {
         const button = document.createElement("button");
         button.textContent = name;
         button.dataset.category = id;

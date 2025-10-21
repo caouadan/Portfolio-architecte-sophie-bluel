@@ -8,100 +8,90 @@ function closeModal() {
 }
 
 // FONCTION galerie dans modale
-async function showGallery(divModal, formFooter) {
-    // Récupération des projets depuis le backend
-    const response = await fetch("http://localhost:5678/api/works");
-    const projects = await response.json();
-
-    // Création galerie dans la modale
-    const divModalGallery = document.createElement("div");
-    divModalGallery.classList.add("modal-gallery");
+function showGallery(modalSection, modalFooter, projects) {
+    const modalGallery = document.createElement("div");
+    modalGallery.classList.add("modal-gallery");
 
     projects.forEach(project => {
         const figure = document.createElement("figure");
         figure.dataset.id = project.id;
 
-        // Appeler la fonction de création de contenu
         createProject(project, figure);
 
-        // Supprimer figcaption si nécessaire
         const fc = figure.querySelector("figcaption");
         if (fc) fc.remove();
 
-        // Création icône poubelle
         const deleteIcon = document.createElement("div");
         deleteIcon.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
         deleteIcon.classList.add("delete-icon");
         deleteIcon.addEventListener("click", () => deleteProject(project.id));
 
         figure.appendChild(deleteIcon);
-        divModalGallery.appendChild(figure);
+        modalGallery.appendChild(figure);
     });
 
-    divModal.insertBefore(divModalGallery, formFooter);
+    modalSection.insertBefore(modalGallery, modalFooter);
+}
+
+// FONCTION création base de la modale
+function createModalBase(originalTitle = "Galerie photo") {
+    const modalSection = document.createElement("section");
+    modalSection.classList.add("modal");
+    const overlayDiv = document.createElement("div");
+    overlayDiv.classList.add("overlay");
+
+    document.body.prepend(overlayDiv, modalSection);
+
+    const modalHeader = document.createElement("header");
+    modalHeader.classList.add("modal-header");
+    const topIcons = document.createElement("div");
+    topIcons.classList.add("modal-top-icons");
+    const backArrow = document.createElement("div");
+
+    backArrow.classList.add("back-arrow");
+    backArrow.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
+    backArrow.style.visibility = "hidden";
+    backArrow.style.pointerEvents = "none";
+
+    const closeButton = document.createElement("div");
+    closeButton.classList.add("close");
+    closeButton.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+    const modalTitle = document.createElement("span");
+
+    modalTitle.classList.add("modal-title");
+    modalTitle.textContent = originalTitle;
+
+    topIcons.append(backArrow, closeButton);
+    modalHeader.append(topIcons, modalTitle);
+    modalSection.appendChild(modalHeader);
+
+    const modalFooter = document.createElement("footer");
+    modalFooter.classList.add("form-footer");
+    addButton = document.createElement("button");
+    addButton.classList.add("add-button");
+    addButton.textContent = "Ajouter une photo";
+    modalFooter.appendChild(addButton);
+    modalSection.appendChild(modalFooter);
+
+    return { modalSection, overlayDiv, backArrow, closeButton, modalTitle, modalFooter, addButton };
 }
 
 // FONCTION ouvrir modale galerie
-function openModalGallery() {
-    // Supprimer ancienne modale et overlay
-    const existingModal = document.querySelector(".modal");
-    const existingOverlay = document.querySelector(".overlay");
-    if (existingModal) existingModal.remove();
-    if (existingOverlay) existingOverlay.remove();
+async function openModalGallery() {
+    document.querySelector(".modal")?.remove();
+    document.querySelector(".overlay")?.remove();
 
-    // Création modale et overlay
-    const divModal = document.createElement("div");
-    const divOverlay = document.createElement("div");
-    divModal.classList.add("modal");
-    divOverlay.classList.add("overlay");
-    document.body.prepend(divOverlay, divModal);
+    const { modalSection, overlayDiv, backArrow, closeButton, modalTitle, modalFooter, addButton } = createModalBase("Galerie photo");
 
-    // Création header modale
-    const divHeader = document.createElement("div");
-    const divTopIcons = document.createElement("div");
-    const divBack = document.createElement("div");
-    const divClose = document.createElement("div");
-    const modalTitle = document.createElement("span");
+    overlayDiv.addEventListener("click", closeModal);
+    closeButton.addEventListener("click", closeModal);
 
-    divHeader.classList.add("modal-header");
-    divTopIcons.classList.add("modal-top-icons");
-    divBack.classList.add("back-arrow");
-    divClose.classList.add("close");
-    modalTitle.classList.add("modal-title");
+    const response = await fetch("http://localhost:5678/api/works");
+    const projects = await response.json();
 
-    divBack.innerHTML = `<i class="fa-solid fa-arrow-left"></i>`;
-    divClose.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
-    modalTitle.textContent = "Galerie photo";
+    addButton.addEventListener("click", () => openAddImageModal(projects, backArrow, modalTitle));
 
-    // Cacher back au départ
-    divBack.style.visibility = "hidden";
-    divBack.style.pointerEvents = "none";
-
-    divTopIcons.append(divBack, divClose);
-    divHeader.append(divTopIcons, modalTitle);
-    divModal.appendChild(divHeader);
-
-    // Création footer modale
-    const formFooter = document.createElement("div");
-    formFooter.classList.add("form-footer");
-
-    const addButton = document.createElement("button");
-    addButton.classList.add("add-button");
-    addButton.textContent = "Ajouter une photo";
-
-    formFooter.appendChild(addButton);
-    divModal.appendChild(formFooter);
-
-    // Event listeners pour fermer modale
-    divOverlay.addEventListener("click", closeModal);
-    divClose.addEventListener("click", closeModal);
-
-    // Event listener pour formulaire ajout photo
-
-    addButton.addEventListener("click", () => openAddImageModal(projects, divBack, modalTitle));
-
-    // galerie affichée
-    showGallery(divModal, formFooter)
+    showGallery(modalSection, modalFooter, projects);
 }
 
 // FONCTION supprimer un projet
@@ -110,24 +100,14 @@ async function deleteProject(projectId) {
 
     const response = await fetch(`http://localhost:5678/api/works/${projectId}`, {
         method: "DELETE",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
+        headers: { "Authorization": `Bearer ${token}` }
     });
 
     if (response.ok) {
-        // Supprimer figure dans modale
-        const divModalGallery = document.querySelector(".modal-gallery");
-        const figureInModal = Array.from(divModalGallery.children).find(
-            fig => fig.dataset.id == projectId
-        );
+        const figureInModal = document.querySelector(`.modal-gallery [data-id='${projectId}']`);
         if (figureInModal) figureInModal.remove();
 
-        // Supprimer figure sur la page principale
-        const divGallery = document.querySelector(".gallery");
-        const figureOnPage = Array.from(divGallery.children).find(
-            fig => fig.dataset.id == projectId
-        );
+        const figureOnPage = document.querySelector(`.gallery [data-id='${projectId}']`);
         if (figureOnPage) figureOnPage.remove();
     } else {
         console.error("Erreur lors de la suppression du projet");

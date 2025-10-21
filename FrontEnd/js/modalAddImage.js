@@ -41,30 +41,22 @@ function previewImage(input, divCaseAdd, addImgContainer) {
 function createImageUploadSection() {
     const divCaseAdd = document.createElement("div");
     divCaseAdd.classList.add("case-add");
-
     const divImgIcon = document.createElement("div");
     divImgIcon.classList.add("img-icon");
     divImgIcon.innerHTML = `<i class="fa-regular fa-image"></i>`;
-
     const ajouterPhoto = document.createElement("button");
     ajouterPhoto.classList.add("ajouter-photo");
     ajouterPhoto.textContent = "+ Ajouter photo";
-
     const inputFile = document.createElement("input");
     inputFile.type = "file";
     inputFile.accept = "image/png, image/jpeg";
     inputFile.style.display = "none";
-
     const imgRequirement = document.createElement("span");
     imgRequirement.textContent = "jpg, png : 4mo max";
-
     const addImgContainer = document.createElement("div");
     addImgContainer.classList.add("addimg-container");
 
-    // Ouvrir sélecteur de fichier
     ajouterPhoto.addEventListener("click", () => inputFile.click());
-
-    // Aperçu image
     inputFile.addEventListener("change", function () {
         previewImage(this, divCaseAdd, addImgContainer);
     });
@@ -79,18 +71,15 @@ function createImageUploadSection() {
 function createAddImageForm(projects) {
     const form = document.createElement("form");
     form.classList.add("form-add");
-
     const labelTitle = document.createElement("label");
     labelTitle.textContent = "Titre";
     const inputTitle = document.createElement("input");
     inputTitle.name = "title";
-
     const labelCategory = document.createElement("label");
     labelCategory.textContent = "Catégorie";
     const selectCategory = document.createElement("select");
     selectCategory.name = "category";
 
-    // Catégories uniques
     const categoriesSet = new Map();
     projects.forEach(project => categoriesSet.set(project.category.id, project.category.name));
     categoriesSet.forEach((name, id) => {
@@ -100,15 +89,15 @@ function createAddImageForm(projects) {
         selectCategory.appendChild(option);
     });
 
-    const formFooter = document.createElement("div");
-    formFooter.classList.add("form-footer");
+    const modalFooter = document.createElement("div");
+    modalFooter.classList.add("form-footer");
     const buttonValidate = document.createElement("button");
     buttonValidate.type = "submit";
     buttonValidate.classList.add("button-validate");
     buttonValidate.textContent = "Valider";
-    formFooter.appendChild(buttonValidate);
+    modalFooter.appendChild(buttonValidate);
 
-    form.append(labelTitle, inputTitle, labelCategory, selectCategory, formFooter);
+    form.append(labelTitle, inputTitle, labelCategory, selectCategory, modalFooter);
 
     return { form, inputTitle, selectCategory };
 }
@@ -119,8 +108,8 @@ function addProjectToGalleries(newProject) {
     createProject(newProject, divGallery);
     applyFilters();
 
-    const divModalGallery = document.querySelector(".modal-gallery");
-    if (!divModalGallery) return;
+    const modalSectionGallery = document.querySelector(".modal-gallery");
+    if (!modalSectionGallery) return;
 
     const figure = document.createElement("figure");
     figure.dataset.id = newProject.id;
@@ -136,74 +125,76 @@ function addProjectToGalleries(newProject) {
     deleteIcon.addEventListener("click", () => deleteProject(newProject.id));
     figure.appendChild(deleteIcon);
 
-    divModalGallery.appendChild(figure);
+    modalSectionGallery.appendChild(figure);
 }
 
-// Fonction ouvrir modale ajout image
-function openAddImageModal(projects, divBack, modalTitle) {
+// FONCTION soumisson du formulaire
+async function handleImageSubmit(e, inputFile, inputTitle, selectCategory, divCaseAdd, addImgContainer) {
+    e.preventDefault();
+
+    const file = inputFile.files[0];
+    if (!file || !inputTitle.value) {
+        showAddImageError("Veuillez remplir tous les champs avant de valider.");
+        console.error("Formulaire incomplet.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", inputTitle.value);
+    formData.append("category", selectCategory.value);
+    formData.append("image", file);
+
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://localhost:5678/api/works", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: formData
+    });
+
+    if (response.ok) {
+        const newProject = await response.json();
+        addProjectToGalleries(newProject);
+
+        inputTitle.value = "";
+        selectCategory.value = "";
+        const preview = divCaseAdd.querySelector("#preview");
+        if (preview) preview.remove();
+        const errorForm = document.querySelector(".empty-problem");
+        if (errorForm) errorForm.remove();
+
+        addImgContainer.style.display = "flex";
+    } else {
+        console.error("Erreur lors de l'ajout du projet");
+    }
+}
+
+// FONCTION ouvrir modale ajout image
+async function openAddImageModal(projects, backArrow, modalTitle) {
     const modal = document.querySelector(".modal");
     const originalTitle = modalTitle.textContent;
     modalTitle.textContent = "Ajout photo";
 
-    // Masquer la galerie et le footer existants
     const modalGallery = modal.querySelector(".modal-gallery");
     if (modalGallery) modalGallery.style.display = "none";
     const oldFormFooter = modal.querySelector(".form-footer");
     if (oldFormFooter) oldFormFooter.style.display = "none";
 
-    // Création des sections
     const { divCaseAdd, inputFile, addImgContainer } = createImageUploadSection();
     modal.appendChild(divCaseAdd);
-
     const { form, inputTitle, selectCategory } = createAddImageForm(projects);
     modal.appendChild(form);
 
-    // Bouton retour
-    divBack.style.visibility = "visible";
-    divBack.style.pointerEvents = "auto";
-    divBack.addEventListener("click", () => {
+    backArrow.style.visibility = "visible";
+    backArrow.style.pointerEvents = "auto";
+    backArrow.addEventListener("click", () => {
         form.style.display = "none";
         divCaseAdd.style.display = "none";
         if (modalGallery) modalGallery.style.display = "grid";
         if (oldFormFooter) oldFormFooter.style.display = "flex";
         modalTitle.textContent = originalTitle;
-        divBack.style.visibility = "hidden";
-        divBack.style.pointerEvents = "none";
+        backArrow.style.visibility = "hidden";
+        backArrow.style.pointerEvents = "none";
     });
 
-    // Validation du formulaire
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const file = inputFile.files[0];
-        if (!file || !inputTitle.value) {
-            showAddImageError("Veuillez remplir tous les champs avant de valider.");
-            console.error("Formulaire incomplet.");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append("title", inputTitle.value);
-        formData.append("category", selectCategory.value);
-        formData.append("image", file);
-
-        const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:5678/api/works", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${token}` },
-            body: formData
-        });
-
-        if (response.ok) {
-            const newProject = await response.json();
-            addProjectToGalleries(newProject);
-            form.reset();
-            const preview = divCaseAdd.querySelector("#preview");
-            if (preview) preview.remove();
-
-            addImgContainer.style.display = "flex";
-        } else {
-            console.error("Erreur lors de l'ajout du projet");
-        }
-    });
+    form.addEventListener("submit", (e) => handleImageSubmit(e, inputFile, inputTitle, selectCategory, divCaseAdd, addImgContainer));
 }

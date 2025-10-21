@@ -3,6 +3,8 @@ if (isLoggedIn()) {
     logout();
     editBar();
     createModifymode();
+    const buttonFilters = document.querySelector(".allCategory");
+    buttonFilters.style.display = "none";
 }
 
 function isLoggedIn() {
