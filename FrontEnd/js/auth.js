@@ -1,11 +1,14 @@
-
-if (isLoggedIn()) {
-    logout();
-    editBar();
-    createModifymode();
-    const buttonFilters = document.querySelector(".allCategory");
-    buttonFilters.style.display = "none";
+function initLoggedInMode() {
+    if (isLoggedIn()) {
+        logout();
+        editBar();
+        createModifymode();
+        const buttonFilters = document.querySelector(".allCategory");
+        buttonFilters.style.display = "none";
+    }
 }
+
+initLoggedInMode();
 
 function isLoggedIn() {
     return !!localStorage.getItem("token");

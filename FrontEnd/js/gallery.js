@@ -1,10 +1,17 @@
-const divCategories = document.createElement("div");
-divCategories.classList.add("allCategory");
-const divGallery = document.querySelector(".gallery");
-divGallery.parentNode.insertBefore(divCategories, divGallery);
+function createCategoryContainer() {
+    const divCategories = document.createElement("div");
+    divCategories.classList.add("allCategory");
 
-// FONCTION collecter backend + filtrer
+    const divGallery = document.querySelector(".gallery");
+    divGallery.parentNode.insertBefore(divCategories, divGallery);
+
+    return { divCategories, divGallery };
+}
+
+// FONCTION collecter backend
 async function collectProject() {
+    const { divCategories, divGallery } = createCategoryContainer();
+
     const response = await fetch("http://localhost:5678/api/works");
     const projects = await response.json();
 
@@ -13,9 +20,11 @@ async function collectProject() {
     projects.forEach(project => createProject(project, divGallery));
 
     createFilterButtons(divCategories, projects);
-    applyFilters();
+    applyFilters(divCategories, divGallery);
 }
 
+
+// FONCTION création des projets
 function createProject(project, divGallery) {
     const figure = document.createElement("figure");
     figure.classList.add("project");
@@ -31,6 +40,7 @@ function createProject(project, divGallery) {
     divGallery.appendChild(figure);
 }
 
+// FONCTION création des filtres
 function createFilterButtons(divCategories, projects) {
     divCategories.innerHTML = "";
 
@@ -53,7 +63,8 @@ function createFilterButtons(divCategories, projects) {
     });
 }
 
-function applyFilters() {
+// FONCTION utilisation des filtres
+function applyFilters(divCategories, divGallery) {
     const buttons = divCategories.querySelectorAll("button");
     const figures = divGallery.querySelectorAll("figure");
 

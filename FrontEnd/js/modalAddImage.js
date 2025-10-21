@@ -77,6 +77,8 @@ function createAddImageForm(projects) {
     inputTitle.name = "title";
     const labelCategory = document.createElement("label");
     labelCategory.textContent = "Catégorie";
+    const selectWrapper = document.createElement("div");
+    selectWrapper.classList.add("select-wrapper");
     const selectCategory = document.createElement("select");
     selectCategory.name = "category";
 
@@ -89,6 +91,11 @@ function createAddImageForm(projects) {
         selectCategory.appendChild(option);
     });
 
+    const icon = document.createElement("i");
+    icon.className = "fa-solid fa-chevron-down";
+    selectWrapper.appendChild(selectCategory);
+    selectWrapper.appendChild(icon);
+
     const modalFooter = document.createElement("footer");
     modalFooter.classList.add("form-footer");
     const buttonValidate = document.createElement("button");
@@ -97,7 +104,7 @@ function createAddImageForm(projects) {
     buttonValidate.textContent = "Valider";
     modalFooter.appendChild(buttonValidate);
 
-    form.append(labelTitle, inputTitle, labelCategory, selectCategory, modalFooter);
+    form.append(labelTitle, inputTitle, labelCategory, selectWrapper, modalFooter);
 
     return { form, inputTitle, selectCategory };
 }
@@ -106,7 +113,6 @@ function createAddImageForm(projects) {
 function addProjectToGalleries(newProject) {
     const divGallery = document.querySelector(".gallery");
     createProject(newProject, divGallery);
-    applyFilters();
 
     const modalSectionGallery = document.querySelector(".modal-gallery");
     if (!modalSectionGallery) return;
