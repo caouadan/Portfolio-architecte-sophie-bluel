@@ -89,7 +89,7 @@ function createAddImageForm(projects) {
         selectCategory.appendChild(option);
     });
 
-    const modalFooter = document.createElement("div");
+    const modalFooter = document.createElement("footer");
     modalFooter.classList.add("form-footer");
     const buttonValidate = document.createElement("button");
     buttonValidate.type = "submit";
