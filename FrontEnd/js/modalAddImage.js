@@ -151,7 +151,7 @@ async function handleImageSubmit(e, inputFile, inputTitle, selectCategory, divCa
     formData.append("image", file);
 
     const token = localStorage.getItem("token");
-    const response = await fetch("http://localhost:5678/api/works", {
+    const response = await fetch(`${API_URL}/works`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData

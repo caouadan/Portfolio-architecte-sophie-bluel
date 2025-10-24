@@ -1,3 +1,5 @@
+const API_URL = "http://localhost:5678/api";
+
 function createCategoryContainer() {
     const divCategories = document.createElement("div");
     divCategories.classList.add("allCategory");
@@ -12,14 +14,14 @@ function createCategoryContainer() {
 async function collectProject() {
     const { divCategories, divGallery } = createCategoryContainer();
 
-    const response = await fetch("http://localhost:5678/api/works");
+    const response = await fetch(`${API_URL}/works`);
     const projects = await response.json();
 
     divGallery.innerHTML = "";
 
     projects.forEach(project => createProject(project, divGallery));
 
-    createFilterButtons(divCategories, projects);
+    await createFilterButtons(divCategories);
     applyFilters(divCategories, divGallery);
 }
 
@@ -41,7 +43,7 @@ function createProject(project, divGallery) {
 }
 
 // FONCTION création des filtres
-function createFilterButtons(divCategories, projects) {
+async function createFilterButtons(divCategories) {
     divCategories.innerHTML = "";
 
     const buttonAll = document.createElement("button");
@@ -50,15 +52,13 @@ function createFilterButtons(divCategories, projects) {
     buttonAll.classList.add("activeButton");
     divCategories.appendChild(buttonAll);
 
-    const categoriesMap = new Map();
-    projects.forEach(project => {
-        categoriesMap.set(project.category.id, project.category.name);
-    });
+    const response = await fetch(`${API_URL}/categories`);
+    const categories = await response.json();
 
-    categoriesMap.forEach((name, id) => {
+    categories.forEach(category => {
         const button = document.createElement("button");
-        button.textContent = name;
-        button.dataset.category = id;
+        button.textContent = category.name;
+        button.dataset.category = category.id;
         divCategories.appendChild(button);
     });
 }

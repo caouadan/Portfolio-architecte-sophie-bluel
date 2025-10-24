@@ -1,3 +1,5 @@
+const API_URL = "http://localhost:5678/api";
+
 // FONCTION envoie des infos et récupération token
 async function userAuth() {
     try {
@@ -7,7 +9,7 @@ async function userAuth() {
         };
         const body = JSON.stringify(userId);
 
-        const informationId = await fetch("http://localhost:5678/api/users/login", {
+        const informationId = await fetch(`${API_URL}/users/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body

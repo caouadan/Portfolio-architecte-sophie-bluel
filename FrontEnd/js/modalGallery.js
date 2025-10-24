@@ -86,7 +86,7 @@ async function openModalGallery() {
     overlayDiv.addEventListener("click", closeModal);
     closeButton.addEventListener("click", closeModal);
 
-    const response = await fetch("http://localhost:5678/api/works");
+    const response = await fetch(`${API_URL}/works`);
     const projects = await response.json();
 
     addButton.addEventListener("click", () => openAddImageModal(projects, backArrow, modalTitle));
@@ -98,7 +98,7 @@ async function openModalGallery() {
 async function deleteProject(projectId) {
     const token = localStorage.getItem("token");
 
-    const response = await fetch(`http://localhost:5678/api/works/${projectId}`, {
+    const response = await fetch(`${API_URL}/works/${projectId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
     });
