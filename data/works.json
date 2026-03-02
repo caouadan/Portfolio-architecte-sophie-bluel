@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "title": "Abajour Tahina",
+    "imageUrl": "assets/images/abajour-tahina.png",
+    "categoryId": 1,
+    "category": { "id": 1, "name": "Objets" }
+  },
+  {
+    "id": 2,
+    "title": "Appartement Paris V",
+    "imageUrl": "assets/images/appartement-paris-v.png",
+    "categoryId": 2,
+    "category": { "id": 2, "name": "Appartements" }
+  },
+  {
+    "id": 3,
+    "title": "Bar Lullaby Paris",
+    "imageUrl": "assets/images/bar-lullaby-paris.png",
+    "categoryId": 3,
+    "category": { "id": 3, "name": "Hôtels & restaurants" }
+  },
+  {
+    "id": 4,
+    "title": "Villa Ferneze",
+    "imageUrl": "assets/images/villa-ferneze.png",
+    "categoryId": 2,
+    "category": { "id": 2, "name": "Appartements" }
+  },
+  {
+    "id": 5,
+    "title": "Appartement Paris XVIII",
+    "imageUrl": "assets/images/appartement-paris-xviii.png",
+    "categoryId": 2,
+    "category": { "id": 2, "name": "Appartements" }
+  },
+  {
+    "id": 6,
+    "title": "Restaurant Sushisen Londres",
+    "imageUrl": "assets/images/restaurant-sushisen-londres.png",
+    "categoryId": 3,
+    "category": { "id": 3, "name": "Hôtels & restaurants" }
+  },
+  {
+    "id": 7,
+    "title": "Appartement Paris X",
+    "imageUrl": "assets/images/appartement-paris-x.png",
+    "categoryId": 2,
+    "category": { "id": 2, "name": "Appartements" }
+  },
+  {
+    "id": 8,
+    "title": "Hotel First Arte New Delhi",
+    "imageUrl": "assets/images/hotel-first-arte-new-delhi.png",
+    "categoryId": 3,
+    "category": { "id": 3, "name": "Hôtels & restaurants" }
+  },
+  {
+    "id": 9,
+    "title": "La Balisiere",
+    "imageUrl": "assets/images/la-balisiere.png",
+    "categoryId": 2,
+    "category": { "id": 2, "name": "Appartements" }
+  },
+  {
+    "id": 10,
+    "title": "Le Coteau Cassis",
+    "imageUrl": "assets/images/le-coteau-cassis.png",
+    "categoryId": 2,
+    "category": { "id": 2, "name": "Appartements" }
+  },
+  {
+    "id": 11,
+    "title": "Structures Thermopolis",
+    "imageUrl": "assets/images/structures-thermopolis.png",
+    "categoryId": 1,
+    "category": { "id": 1, "name": "Objets" }
+  }
+]
