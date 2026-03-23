@@ -4,6 +4,12 @@ Sophie Bluel est une architecte d’intérieur souhaitant présenter ses projets
 
 Ce projet consiste à développer la partie front-end du site en JavaScript, en intégrant des fonctionnalités interactives et en communiquant avec une API.
 
+Identifiants de connexion (pré-remplis dans le formulaire) :
+---
+
+- Email : `admin@admin.com`
+- Mot de passe : `admin123`
+
 ---
 
 ## Objectifs du projet
