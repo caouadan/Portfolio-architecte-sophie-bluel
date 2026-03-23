@@ -1,80 +1,86 @@
-# Portfolio Sophie Bluel
+# Sophie Bluel – Portfolio dynamique d’architecte
 
-Un portfolio d'architecte d'intérieur avec une zone admin pour gérer les projets.
+Sophie Bluel est une architecte d’intérieur souhaitant présenter ses projets à travers un site web dynamique.
 
-## Quick Start
-
-Identifiants de connexion (pré-remplis dans le formulaire) :
-
-- Email : `admin@admin.com`
-- Mot de passe : `admin123`
-
-## Qu'est-ce que c'est ?
-
-- Page d'accueil : Affiche la galerie des projets
-- Page de connexion : Zone d'authentification (démo)
-- Zone admin : Ajouter/supprimer des projets après connexion
-
-## Dossiers
-
-```
-├── index.html          # Page d'accueil
-├── login.html          # Page de connexion
-├── assets/             # Images et styles CSS
-├── data/               # Fichiers JSON (données)
-│   ├── users.json      # Comptes utilisateurs
-│   ├── works.json      # Projets
-│   └── categories.json # Catégories
-└── js/                 # Code JavaScript
-    ├── api.js          # API mockée simple
-    ├── login.js        # Logique de connexion
-    ├── gallery.js      # Affichage galerie
-    └── ...
-```
-
-## Comment ça marche (pour un junior frontend)
-
-### API mockée
-
-Pas de vrai serveur backend ! À la place, on utilise une API simple qui :
-
-- Charge les données depuis des fichiers JSON (data/works.json, data/categories.json)
-- Utilise `fetch` et `async/await`
-- Stocke les modifications dans le navigateur avec `localStorage`
-
-Exemple simple dans api.js :
-
-```javascript
-async getWorks() {
-    const response = await fetch("data/works.json");
-    const works = await response.json();
-    localStorage.setItem("works", JSON.stringify(works));
-    return works;
-}
-```
-
-### Authentification
-
-Les identifiants sont vérifiés directement dans le code (démo) :
-
-- Email : `admin@admin.com`
-- Mot de passe : `admin123`
-- Un token fictif est stocké dans `localStorage`
-
-### Ajouter/Supprimer des projets
-
-Les modifications ne sont sauvegardées que dans `localStorage` (le navigateur), pas en base de données. Donc :
-
-- Si tu rafraîchis la page : les changements restent
-- Si tu fermes complètement l'onglet : tout est réinitialisé
-
-## Points importants
-
-- Les identifiants sont visibles dans le code (ok pour une démo)
-- Les données persistent pendant la session utilisateur
-- C'est une simulation, pas un vrai backend
-- À ne pas utiliser en production avec des vraies données
+Ce projet consiste à développer la partie front-end du site en JavaScript, en intégrant des fonctionnalités interactives et en communiquant avec une API.
 
 ---
 
-Projet de portfolio frontend pour apprendre JavaScript, fetch, et localStorage.
+## Objectifs du projet
+
+- Créer une page web dynamique avec JavaScript  
+- Manipuler le DOM  
+- Gérer les événements utilisateurs  
+- Récupérer et envoyer des données via une API  
+- Implémenter un système de connexion administrateur  
+- Développer des composants interactifs (modale, formulaire)  
+
+---
+
+## Technologies utilisées
+
+- HTML5  
+- CSS3  
+- JavaScript  
+- API REST  
+- Git / GitHub  
+- Figma  
+
+---
+
+## Fonctionnalités principales
+
+- Affichage dynamique des projets via une API  
+- Filtrage des travaux par catégorie  
+- Page de connexion administrateur  
+- Ajout de nouveaux projets via une modale  
+- Upload d’images avec formulaire  
+- Mise à jour de l’interface en temps réel  
+
+---
+
+## Communication avec l’API
+
+Le projet repose sur des échanges avec une API pour :
+
+- Récupérer les données des projets  
+- Envoyer de nouveaux médias  
+- Authentifier un utilisateur  
+- Mettre à jour dynamiquement le contenu affiché  
+
+Les requêtes sont gérées en JavaScript via des appels HTTP.
+
+---
+
+## Manipulation du DOM
+
+JavaScript est utilisé pour :
+
+- Générer dynamiquement les éléments HTML  
+- Mettre à jour l’affichage en fonction des données  
+- Gérer les interactions utilisateur  
+- Modifier l’interface sans rechargement de page  
+
+---
+
+## Formulaires et événements
+
+Le projet inclut plusieurs interactions utilisateur :
+
+- Gestion des formulaires (connexion, ajout de projet)  
+- Validation des données utilisateur  
+- Gestion des événements (click, submit)  
+- Feedback visuel en fonction des actions  
+
+---
+
+## Compétences développées
+
+- Développement d’une interface dynamique en JavaScript  
+- Manipulation avancée du DOM  
+- Gestion des événements utilisateurs  
+- Communication avec une API REST  
+- Gestion de l’authentification côté front-end  
+- Création de composants interactifs (modale, formulaires)  
+- Structuration du code JavaScript  
+- Utilisation de Git et GitHub pour le versionning  
